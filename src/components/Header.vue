@@ -26,41 +26,32 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr
-                                        
-                                            v-for="producto in carrito"
-                                        
-                                        >
+                                        <tr v-for="producto in carrito">
                                             <td>
-                                                <img 
-                                                    class="img-fluid" 
-                                                    :src="`/img/${producto.imagen}.jpg`" 
-                                                    :alt="`${producto.nombre}`"
-                                                >
+                                                <img class="img-fluid" :src="`/img/${producto.imagen}.jpg`"
+                                                    :alt="`${producto.nombre}`">
                                             </td>
                                             <td>{{ producto.nombre }}</td>
                                             <td class="fw-bold">
                                                 {{ producto.precio }}
                                             </td>
                                             <td class="flex align-items-start gap-4">
-                                                <button 
-                                                    type="button" 
-                                                    class="btn btn-dark" 
-                                                    @click="$emit('decrementar-cantidad')"
-                                                >
+                                                <button type="button" class="btn btn-dark"
+                                                    @click="$emit('decrementar-cantidad', producto.id)">
                                                     -
                                                 </button>
                                                 {{ producto.cantidad }}
-                                                <button 
-                                                    type="button" 
-                                                    class="btn btn-dark"
-                                                    @click="$emit('incrementar-cantidad')"
-                                                >
+                                                <button type="button" class="btn btn-dark"
+                                                    @click="$emit('incrementar-cantidad', producto.id)">
                                                     +
                                                 </button>
                                             </td>
                                             <td>
-                                                <button class="btn btn-danger" type="button">
+                                                <button 
+                                                    class="btn btn-danger" 
+                                                    type="button"
+                                                    @click="$emit('eliminar-producto', producto.id)"
+                                                >
                                                     X
                                                 </button>
                                             </td>
@@ -68,8 +59,13 @@
                                     </tbody>
                                 </table>
 
-                                <p class="text-end">Total pagar: <span class="fw-bold">$899</span></p>
-                                <button class="btn btn-dark w-100 mt-3 p-2">Vaciar Carrito</button>
+                                <p class="text-end">Total pagar: <span class="fw-bold">${{ totalPagar }}</span></p>
+                                <button 
+                                    class="btn btn-dark w-100 mt-3 p-2"
+                                    @click="$emit('vaciar-carrito')"
+                                >
+                                    Vaciar Carrito
+                                </button>
                             </div>
 
                         </div>
@@ -79,14 +75,16 @@
 
             <div class="row mt-5">
                 <div class="col-md-6 text-center text-md-start pt-5">
-                    <h1 class="display-2 fw-bold">Modelo VAI</h1>
-                    <p class="mt-5 fs-5 text-white">Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus,
-                        possimus
-                        quibusdam dolor nemo velit quo, fuga omnis, iure molestias optio tempore sint at ipsa dolorum
-                        odio
-                        exercitationem eos inventore odit.</p>
-                    <p class="text-primary fs-1 fw-black">$399</p>
-                    <button type="button" class="btn fs-4 bg-primary text-white py-2 px-5">Agregar al Carrito</button>
+                    <h1 class="display-2 fw-bold">Modelo {{ guitarra.nombre }}</h1>
+                    <p class="mt-5 fs-5 text-white">{{  guitarra.descripcion }}</p>
+                    <p class="text-primary fs-1 fw-black">${{guitarra.precio}}</p>
+                    <button 
+                        type="button" 
+                        class="btn fs-4 bg-primary text-white py-2 px-5"
+                        @click="$emit('agregar-carrito', guitarra)"
+                    >
+                        Agregar al Carrito
+                    </button>
                 </div>
             </div>
         </div>
@@ -97,14 +95,30 @@
 
 <script setup>
 
+import { computed } from 'vue'
+
 const props = defineProps({
     carrito: {
         type: Array,
         required: true
+    },
+    guitarra: {
+        type: Object,
+        required: true
     }
 })
 
-defineEmits(['decrementar-cantidad', 'incrementar-cantidad'])
+defineEmits([
+    'decrementar-cantidad',
+    'incrementar-cantidad', 
+    'agregar-carrito', 
+    'eliminar-producto',
+    'vaciar-carrito'
+])
+
+const totalPagar = computed(() => {
+    return props.carrito.reduce( (total, producto) => total + (producto.cantidad * producto.precio), 0)
+})
 </script>
 
 <style lang="scss" scoped></style>
